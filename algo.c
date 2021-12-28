@@ -8,16 +8,16 @@ void build_graph_cmd(pnode *head)
         free(head);
     int size=0;
     scanf("%d",&size);
-    head=(pnode)malloc(sizeof(struct GRAPH_NODE_));
+    *head=(pnode)malloc(sizeof(struct GRAPH_NODE_));
     if(head==NULL)
     {
         printf("Couldn't allocate memory, try again\n");
         return;
     }
-    head->node_num=0;
-    head->edges=NULL;//(pedge)malloc(sizeof(struct edge_));
-    head->next=NULL;
-    pnode temp=head;
+    (*head)->node_num=0;
+    (*head)->edges=NULL;//(pedge)malloc(sizeof(struct edge_));
+    (*head)->next=NULL;
+    pnode temp=(*head);
     for(int i=1;i<size;i++)
     {
         pnode curr=(pnode)malloc(sizeof(struct GRAPH_NODE_));
@@ -28,8 +28,7 @@ void build_graph_cmd(pnode *head)
         }
         curr->node_num=i;
         curr->edges=NULL;
-        head->next=NULL;
-        temp->next=curr
+        temp->next=curr;
         temp=temp->next;
     }
     char c=' ';
@@ -46,10 +45,10 @@ void build_graph_cmd(pnode *head)
         while(p!=0)
         {
             scanf("%d",&weight);
-            pnode e=head;
+            pnode e=*head;
             while(e->node_num!=id)
                 e=e->next;
-            pnode e2=head;
+            pnode e2=*head;
             while(e2->node_num!=node)
                 e2=e2->next;
             pedge edge=(pedge)malloc(sizeof(struct edge_));
@@ -76,8 +75,8 @@ void build_graph_cmd(pnode *head)
 }
 void insert_node_cmd(pnode *head)
 {
-    pnode temp=head;
-    pnode prev=head;
+    pnode temp=*head;
+    pnode prev=*head;
     int num=0;
     scanf("%d",&num);
     while(temp!=NULL && temp->node_num !=num)
@@ -95,17 +94,17 @@ void insert_node_cmd(pnode *head)
             free(p);
             p=next;
         }
-        head->edges=NULL;
+        (*head)->edges=NULL;
     }
-    pnode edges=NULL;
+    pedge edges=NULL;
     int id=0;
     int a=scanf("%d",&id);
     while(a!=0)
     {
         int weight=0;
         scanf("%d",&weight);
-        pnode add=(pnode)malloc(sizeof(struct edge_));
-        pnode dest=head;
+        pedge add=(pedge)malloc(sizeof(struct edge_));
+        pnode dest=*head;
         while(dest->node_num!=id)
             dest=dest->next;
         add->weight=weight;
@@ -136,13 +135,13 @@ void delete_node_cmd(pnode *head)
 {
     int id =0;
     scanf("%d",&id);
-    pnode temp=head;
+    pnode temp=*head;
     pnode prev=temp;
     while(temp->node_num != id){
         prev=temp;
         temp=temp->next;
     }
-    temp=head;
+    temp=*head;
     while(temp!=NULL)
     {
         pnode curr=temp;
@@ -154,8 +153,8 @@ void delete_node_cmd(pnode *head)
         pedge p2=p;
         if(p->endpoint->node_num == id)
         {
-            p2=head;
-            head=head->next;
+            p2=p;
+            p=curr->edges->next;
             free(p2);
         }
         else{
@@ -176,7 +175,7 @@ void delete_node_cmd(pnode *head)
         temp=temp->next;
     }
     pedge pa=prev->next->edges;
-    while(pa-next!=NULL)
+    while(pa->next!=NULL)
     {
         pedge k=pa->next;
         free(pa);
@@ -184,10 +183,10 @@ void delete_node_cmd(pnode *head)
     }
     free(pa);
     pnode del=prev->next;
-    if(head->node_num==id)
+    if((*head)->node_num==id)
     {
-        del=head;
-        head=head->next;
+        del=*head;
+        (*head)=(*head)->next;
         free(del);
     }
     else{
@@ -195,5 +194,107 @@ void delete_node_cmd(pnode *head)
         free(del);
     }
 
+}
+int** shortsPath_cmd(pnode head)
+{
+    int size=max_ID(head);
+    int **MAT=(int **)malloc(size*sizeof(int*));
+    for(int i=0;i<size;i++)
+        MAT[i]=(int*)malloc(size*sizeof(int));
+    for(int i=0;i<size;i++)
+    {
+        for(int j=0;j<size;j++){
+            MAT[i][j]=INF;
+            if(i==j)
+                MAT[i][j]=0;
+        }
+    }
+    for(int i=0;i<size;i++)
+    {
+        pnode p=get_Node(head,i);
+        if(p==NULL)
+            continue;
+        pedge ed=p->edges;
+        while(ed!=NULL)
+        {
+            MAT[i][ed->endpoint->node_num]=ed->weight;
+            ed=ed->next;
+        }
+    }
+    for(int k=0;k<size;k++)
+    {
+        for(int i=0;i<size;i++)
+        {
+            for(int j=0;j<size;j++)
+            {
+                if(MAT[i][j]>MAT[i][k]+MAT[k][j])
+                {
+                    MAT[i][j]=MAT[i][k]+MAT[k][j];
+                }
+            }
+        }
+    }
+   
+    return MAT;
+    
+}
+
+pnode get_Node(pnode head,int id){
+    pnode temp=head;
+    while(temp!=NULL)
+    {
+        if(temp->node_num==id)
+            return temp;
+        temp=temp->next;
+    }
+    return NULL;
+}
+int max_ID(pnode head)
+{
+    int max=0;
+    pnode temp=head;
+    while(temp!=NULL)
+    {
+        if(temp->node_num>max)
+            max=temp->node_num;
+        temp=temp->next;
+    }
+    return max+1;
+}
+int main()
+{
+    int size=3;
+    int **MAT=(int **)malloc(size*sizeof(int*));
+    for(int i=0;i<size;i++)
+        MAT[i]=(int*)malloc(size*sizeof(int));
+    MAT[0][1]=3;
+    MAT[0][2]=1;
+    MAT[1][0]=1;
+    MAT[1][2]=4;
+    MAT[2][1]=1;
+    MAT[2][0]=1;
+    MAT[0][0]=0;
+    MAT[1][1]=0;
+    MAT[2][2]=0;
+    int counter=0;
+    for(int k=0;k<size;k++)
+    {
+        for(int i=0;i<size;i++)
+        {
+            for(int j=0;j<size;j++)
+            {
+                //printf("%d to %d is %d\n",i,j,MAT[i][j]);
+                if(MAT[i][j]>MAT[i][k]+MAT[k][j])
+                {
+                    MAT[i][j]=MAT[i][k]+MAT[k][j];
+                }
+                counter++;
+            }
+        }
+    }
+    printf("%d\n",counter);
+    printf("%d",MAT[0][1]);
+
+   
 }
 
