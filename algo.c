@@ -4,8 +4,8 @@
 
 void build_graph_cmd(pnode *head)
 {
-    if (head!=NULL)
-        free(head);
+    // if (head!=NULL)
+    //     free(head);
     int size=0;
     scanf("%d",&size);
     *head=(pnode)malloc(sizeof(struct GRAPH_NODE_));
@@ -33,8 +33,8 @@ void build_graph_cmd(pnode *head)
     }
     char c=' ';
     int t=0;
-    t=scanf("%c",&c);
-    while(t!=0)
+    scanf(" %c",&c);
+    while(c=='n')
     {
         int id=0,node=0,weight=0;
         scanf("%d",&id);
@@ -70,7 +70,7 @@ void build_graph_cmd(pnode *head)
             }
             p=scanf("%d",&node);
         }
-        t=scanf("%c",&c);
+        scanf(" %c",&c);
     }    
 }
 void insert_node_cmd(pnode *head)
@@ -79,6 +79,7 @@ void insert_node_cmd(pnode *head)
     pnode prev=*head;
     int num=0;
     scanf("%d",&num);
+
     while(temp!=NULL && temp->node_num !=num)
     {
         prev=temp;
@@ -93,8 +94,9 @@ void insert_node_cmd(pnode *head)
             next=p->next;
             free(p);
             p=next;
+            
         }
-        (*head)->edges=NULL;
+        temp->edges=NULL;
     }
     pedge edges=NULL;
     int id=0;
@@ -105,19 +107,22 @@ void insert_node_cmd(pnode *head)
         scanf("%d",&weight);
         pedge add=(pedge)malloc(sizeof(struct edge_));
         pnode dest=*head;
-        while(dest->node_num!=id)
+        while(dest!=NULL && dest->node_num!=id){
             dest=dest->next;
+        }
         add->weight=weight;
         add->endpoint=dest;
         add->next=NULL;
-        if(edges==NULL)
+        if(edges==NULL){
             edges=add;
+        }
         else{
             pedge l=edges;
             while(l->next!=NULL)
                 l=l->next;
             l->next=add;
         }
+
         a=scanf("%d",&id);
     }
     if(temp!=NULL)
@@ -126,9 +131,10 @@ void insert_node_cmd(pnode *head)
     }
     else{
         pnode n=(pnode)malloc(sizeof(struct GRAPH_NODE_));
-        prev->next=n;
+        n->node_num=num;
         n->edges=edges;
         n->next=NULL;
+        prev->next=n;
     }
 }
 void delete_node_cmd(pnode *head)
@@ -137,62 +143,70 @@ void delete_node_cmd(pnode *head)
     scanf("%d",&id);
     pnode temp=*head;
     pnode prev=temp;
-    while(temp->node_num != id){
+    while(temp != NULL && temp->node_num!=id)
+    {
         prev=temp;
         temp=temp->next;
     }
+    pedge p=prev->next->edges;
+    while(p!=NULL)
+    {
+        pedge p2=p;
+        p=p->next;
+        free(p2);
+    }
+    prev->next->edges=NULL;
     temp=*head;
     while(temp!=NULL)
     {
-        pnode curr=temp;
-        if(curr->node_num == id){
-            temp=temp->next;
-            continue;
-        }
-        pedge p=curr->edges;
-        pedge p2=p;
-        if(p->endpoint->node_num == id)
+        pedge ed=temp->edges;
+        if(ed!=NULL)
         {
-            p2=p;
-            p=curr->edges->next;
-            free(p2);
-        }
-        else{
-            while(p->next!=NULL)
+            pedge t=ed;
+            if(ed->endpoint->node_num == id)
             {
-                if(p->next->endpoint->node_num == id)
-                {
-                    p2=p->next;
-                    p->next=p->next->next;
-                    free(p2);
-                }
-                else
-                    p=p->next;
+                temp->edges=temp->edges->next;
+                free(t);
             }
-            if(p->endpoint->node_num==id)
-                free(p);
+            else
+            {
+               p=temp->edges;
+               pedge k;
+               pedge prev;
+               while(p->next !=NULL)
+               {
+                   if(p->endpoint->node_num == id){
+                        k=p->next;
+                        p->next=p->next->next;
+                        free(k);
+                        break;
+                   }
+                   else{
+                    prev=p;
+                    p=p->next;
+                   }
+               }
+               if(p!=NULL && p->endpoint->node_num == id)
+               {
+                   prev->next=NULL;
+                   free(p);
+               }
+            }
         }
         temp=temp->next;
     }
-    pedge pa=prev->next->edges;
-    while(pa->next!=NULL)
-    {
-        pedge k=pa->next;
-        free(pa);
-        pa=k;
-    }
-    free(pa);
-    pnode del=prev->next;
+    temp=*head;
     if((*head)->node_num==id)
     {
-        del=*head;
         (*head)=(*head)->next;
-        free(del);
+        free(temp);
     }
     else{
+        temp=prev->next;
         prev->next=prev->next->next;
-        free(del);
+        free(temp);
     }
+
 
 }
 int** shortsPath_cmd(pnode head)
@@ -215,7 +229,7 @@ int** shortsPath_cmd(pnode head)
         if(p==NULL)
             continue;
         pedge ed=p->edges;
-        while(ed!=NULL)
+        while(ed!=NULL && ed->endpoint != NULL)
         {
             MAT[i][ed->endpoint->node_num]=ed->weight;
             ed=ed->next;
@@ -238,7 +252,163 @@ int** shortsPath_cmd(pnode head)
     return MAT;
     
 }
+void TSP_cmd(pnode head)
+{
+    int** MAT=shortsPath_cmd(head);
+    int key=0;
+    int size=0;
+    scanf("%d",&size);
+    int *arr=(int*)malloc(size*sizeof(int));
+    int s=scanf("%d",&key);
+    int index=0;
+    while(s==1 && s!=EOF && index<6){
+        arr[index++]=key;
+        s=scanf("%d",&key);
+    }
+    if(size==1){
+        printf("0\n");
+        return;
+    }
+    if(size==2){
+        if(MAT[arr[0]][arr[1]]<INF){
+            printf("TSP: %d\n",MAT[arr[0]][arr[1]]);
+        }
+        else
+            printf("TSP shortest path: -1\n");
+        return;
+    }
+    int min=INF;
+    if(size==3)
+    {
+        for(int i=0;i<size;i++)
+        {
+            int curr=0;
+            for(int j=0;j<size;j++)
+            {
+                for(int k=0;k<size;k++)
+                {
+                    if(i!=j && i!=k && j!=k)
+                    {
+                        curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]];
+                        if(curr<min)
+                        {
+                            min=curr;
+                        }
+                    }
+                }
+            }
+        }
+        if(min<INF){
+        printf("TSP: %d\n",min);
+        }
+        else
+            printf("TSP shortest path: -1 \n");
+        return;
+    }
+    if(size==4)
+    {
+        for(int i=0;i<size;i++)
+        {
+            int curr=0;
+            for(int j=0;j<size;j++)
+            {
+                for(int k=0;k<size;k++)
+                {
+                    for(int m=0;m<size;m++)
+                    {
+                        if(i!=j && i!=k && j!=k && i!=m && j!=m && k!=m)
+                        {
+                            curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]];
+                            if(curr<min)
+                            {
+                                min=curr;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(min<INF){
+            printf("TSP: %d\n",min);
+        }
+        else
+            printf("TSP shortest path: -1 \n");
+        return;
+    }
+    if(size==5)
+    {
+        for(int i=0;i<size;i++)
+        {
+            int curr=0;
+            for(int j=0;j<size;j++)
+            {
+                for(int k=0;k<size;k++)
+                {
+                    for(int m=0;m<size;m++)
+                    {
+                         for(int n=0;n<size;n++)
+                        {
+                            if(i!=j && i!=k && j!=k && i!=m && j!=m && k!=m && i!=n && j!=n && k!=n && m!=n)
+                            {
+                                curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]+MAT[arr[m]][arr[n]];
+                                if(curr<min)
+                                {
+                                    min=curr;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(min<INF){
+            printf("TSP: %d\n",min);
+        }
+        else
+            printf("TSP shortest path: -1 \n");
+        return;
+    }
+    for(int i=0;i<size;i++)
+    {
+        int curr=0;
+        for(int j=0;j<size;j++)
+        {
+            for(int k=0;k<size;k++)
+            {
+                for(int m=0;m<size;m++)
+                {
+                    for(int n=0;n<size;n++)
+                    {
+                        for(int r=0;r<size;r++)
+                        {
+                            if(i!=j && i!=k && i!=m && i!=n && i!=r && j!=k && j!=m && j!=n && j!=r && k!=m && k!=n && k!=r && m!=n && m!=r && n!=r)
+                            {
+                                
+                                switch(size){
+                                    case 3: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]; break;
+                                    case 4: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]; break;
+                                    case 5: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]+MAT[arr[m]][arr[n]]; break;
+                                    case 6: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]+MAT[arr[m]][arr[n]]+MAT[arr[n]][arr[r]]; break;
+                                }
+                                
+                                if(curr<min)
+                                {
+                                    min=curr;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+}
+      if(min<INF){
+        printf("TSP: %d\n",min);
+        }
+        else
+            printf("TSP shortest path: -1 \n");
 
+}
 pnode get_Node(pnode head,int id){
     pnode temp=head;
     while(temp!=NULL)
@@ -252,7 +422,8 @@ pnode get_Node(pnode head,int id){
 int max_ID(pnode head)
 {
     int max=0;
-    pnode temp=head;
+    pnode temp=NULL;
+    temp=head;
     while(temp!=NULL)
     {
         if(temp->node_num>max)
@@ -263,38 +434,81 @@ int max_ID(pnode head)
 }
 int main()
 {
-    int size=3;
-    int **MAT=(int **)malloc(size*sizeof(int*));
-    for(int i=0;i<size;i++)
-        MAT[i]=(int*)malloc(size*sizeof(int));
-    MAT[0][1]=3;
-    MAT[0][2]=1;
-    MAT[1][0]=1;
-    MAT[1][2]=4;
-    MAT[2][1]=1;
-    MAT[2][0]=1;
-    MAT[0][0]=0;
-    MAT[1][1]=0;
-    MAT[2][2]=0;
-    int counter=0;
-    for(int k=0;k<size;k++)
+    pnode head=NULL;
+    int check=0;
+    char c=' ';
+    check=scanf(" %c",&c);
+    int temp=0;
+    int** MAT;
+    int times=0;
+    while(check!=EOF)
     {
-        for(int i=0;i<size;i++)
-        {
-            for(int j=0;j<size;j++)
-            {
-                //printf("%d to %d is %d\n",i,j,MAT[i][j]);
-                if(MAT[i][j]>MAT[i][k]+MAT[k][j])
-                {
-                    MAT[i][j]=MAT[i][k]+MAT[k][j];
-                }
-                counter++;
-            }
+        
+
+        if(c=='A'){
+            build_graph_cmd(&head);
+            
         }
+        if(c=='B'){
+            insert_node_cmd(&head);
+            pnode p=head;
+            while(p!=NULL)
+            {
+                pedge k = p->edges;
+                while(k!=NULL)
+                {
+                    printf("%d--->%d : %d\n",p->node_num,k->endpoint->node_num,k->weight);
+                    k=k->next;
+                }
+                p=p->next;
+            }
+            printf("\n");
+            temp=0;
+             
+        }
+        if(c=='D'){
+            
+            delete_node_cmd(&head);
+            pnode p=head;
+            while(p!=NULL)
+            {
+                pedge k = p->edges;
+                while(k!=NULL)
+                {
+                    printf("%d--->%d : %d\n",p->node_num,k->endpoint->node_num,k->weight);
+                    k=k->next;
+                }
+                p=p->next;
+            }
+           
+            temp=0;
+        }
+        if(c=='S')
+        {
+            if(temp==0){
+                MAT=shortsPath_cmd(head);
+                temp==1;
+            }
+            int p1=0, p2=0; 
+            scanf(" %d %d",&p1,&p2);
+            printf("dist %d\n",MAT[p1][p2]);
+        }
+        if(c=='T')
+        {
+            printf("try\n");
+            TSP_cmd(head);
+        }
+        
+       check=scanf(" %c",&c);
+       
     }
-    printf("%d\n",counter);
-    printf("%d",MAT[0][1]);
 
    
 }
+    // int k=0;
+    // char c=' ';
+    // char a=0;
+    // k=scanf(" %c %c",&a,&c);
+    // //printf("%d",k);
+    // printf("%c %c",a,c);
 
