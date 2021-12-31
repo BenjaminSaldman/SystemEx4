@@ -526,7 +526,6 @@ int main()
         }
         if(c=='T')
         {
-            pnode temp=head;
             TSP_cmd(head);
         }
         
