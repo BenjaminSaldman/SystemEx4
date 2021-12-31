@@ -305,7 +305,7 @@ void TSP_cmd(pnode head)
         s=scanf("%d",&key);
     }
     if(size==1){
-        printf("TSP shortest path: 0\n");
+        printf("TSP shortest path: 0 \n");
         delMat(MAT);
         free(arr);
         return;
@@ -318,7 +318,7 @@ void TSP_cmd(pnode head)
                 printf("TSP shortest path: %d \n",MAT[arr[1]][arr[0]]);
         }
         else
-            printf("TSP shortest path: -1\n");
+            printf("TSP shortest path: -1 \n");
 
         delMat(MAT);
         free(arr);
@@ -378,7 +378,7 @@ void TSP_cmd(pnode head)
             }
         }
         if(min<INF){
-            printf("TSP shortest path: %d\n",min);
+            printf("TSP shortest path: %d \n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
