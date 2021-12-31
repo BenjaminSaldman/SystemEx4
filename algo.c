@@ -7,14 +7,14 @@ void build_graph_cmd(pnode *head)
     deleteGraph_cmd(head);
     int size=0;
     scanf("%d",&size);
-    *head=(pnode)malloc(sizeof(struct GRAPH_NODE_));
+    (*head)=(pnode)malloc(sizeof(struct GRAPH_NODE_));
     if(head==NULL)
     {
         printf("Couldn't allocate memory, try again\n");
         return;
     }
     (*head)->node_num=0;
-    (*head)->edges=NULL;//(pedge)malloc(sizeof(struct edge_));
+    (*head)->edges=NULL;
     (*head)->next=NULL;
     pnode temp=(*head);
     for(int i=1;i<size;i++)
@@ -27,9 +27,11 @@ void build_graph_cmd(pnode *head)
         }
         curr->node_num=i;
         curr->edges=NULL;
+        curr->next=NULL;
         temp->next=curr;
         temp=temp->next;
     }
+    temp=(*head);
     char c=' ';
     scanf(" %c",&c);
     while(c=='n')
@@ -69,7 +71,8 @@ void build_graph_cmd(pnode *head)
             p=scanf("%d",&node);
         }
         scanf(" %c",&c);
-    }    
+    }
+            
 }
 void insert_node_cmd(pnode *head)
 {
@@ -221,19 +224,24 @@ void deleteGraph_cmd(pnode* head)
             free(curr);
             curr=t;
         }
+        temp->edges=NULL;
         temp=temp->next;
     }
-    while((*head)!=NULL)
+    temp=*head;
+    while(temp!=NULL)
     {
-        temp=(*head)->next;
-        free((*head));
-        (*head)=temp;
+       pnode t=temp->next;
+        free(temp);
+        temp=t;
     }
+    *head=NULL;
     //free(head);
 }
 int** shortsPath_cmd(pnode head)
 {
+    
     int size=max_ID(head);
+    //printf("size:\n");
     MATSIZE=size;
     int **MAT=(int **)malloc(size*sizeof(int*));
     for(int i=0;i<size;i++)
@@ -276,17 +284,15 @@ int** shortsPath_cmd(pnode head)
     
 }
 void delMat(int **MAT){
-    // for(int i=0;i<MATSIZE;i++){
-    //     for(int j=0;j<MATSIZE;j++){
-    //         free(MAT[i][j]);
-    //     }
-    // }
+   
     for(int i=0;i<MATSIZE;i++)
         free(MAT[i]);
     free(MAT);
 }
 void TSP_cmd(pnode head)
 {
+    
+
     int** MAT=shortsPath_cmd(head);
     int key=0;
     int size=0;
@@ -299,14 +305,17 @@ void TSP_cmd(pnode head)
         s=scanf("%d",&key);
     }
     if(size==1){
-        printf("0\n");
+        printf("TSP shortest path: 0\n");
         delMat(MAT);
         free(arr);
         return;
     }
     if(size==2){
-        if(MAT[arr[0]][arr[1]]<INF){
-            printf("TSP: %d\n",MAT[arr[0]][arr[1]]);
+        if(MAT[arr[0]][arr[1]]<INF || MAT[arr[1]][arr[0]]<INF){
+            if(MAT[arr[0]][arr[1]]<INF)
+                printf("TSP shortest path: %d\n",MAT[arr[0]][arr[1]]);
+            else
+                printf("TSP shortest path: %d\n",MAT[arr[1]][arr[0]]);
         }
         else
             printf("TSP shortest path: -1\n");
@@ -337,7 +346,7 @@ void TSP_cmd(pnode head)
             }
         }
         if(min<INF){
-        printf("TSP: %d\n",min);
+        printf("TSP shortest path: %d\n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
@@ -369,7 +378,7 @@ void TSP_cmd(pnode head)
             }
         }
         if(min<INF){
-            printf("TSP: %d\n",min);
+            printf("TSP shortest path: %d\n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
@@ -404,7 +413,7 @@ void TSP_cmd(pnode head)
             }
         }
         if(min<INF){
-            printf("TSP: %d\n",min);
+            printf("TSP shortest path: %d\n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
@@ -447,7 +456,7 @@ void TSP_cmd(pnode head)
         }
 }
       if(min<INF){
-        printf("TSP: %d\n",min);
+        printf("TSP shortest path: %d\n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
@@ -473,10 +482,12 @@ int max_ID(pnode head)
     pnode temp=head;
     while(temp!=NULL)
     {
+
         if(temp->node_num>max)
             max=temp->node_num;
         temp=temp->next;
     }
+
     return max+1;
 }
 int main()
@@ -492,6 +503,8 @@ int main()
 
         if(c=='A'){
             build_graph_cmd(&head);
+          
+            
             
         }
         if(c=='B'){
@@ -507,12 +520,13 @@ int main()
             MAT=shortsPath_cmd(head);
             int p1=0, p2=0; 
             scanf(" %d %d",&p1,&p2);
-            printf("dist %d\n",MAT[p1][p2]);
+            printf("Dijsktra shortest path: %d\n",MAT[p1][p2]);
             delMat(MAT);
             
         }
         if(c=='T')
         {
+            pnode temp=head;
             TSP_cmd(head);
         }
         
@@ -520,14 +534,6 @@ int main()
        
     }
     deleteGraph_cmd(&head);
-
-
-   
 }
-    // int k=0;
-    // char c=' ';
-    // char a=0;
-    // k=scanf(" %c %c",&a,&c);
-    // //printf("%d",k);
-    // printf("%c %c",a,c);
+ 
 
