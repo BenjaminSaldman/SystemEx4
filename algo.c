@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "graph.h"
-
+int MATSIZE=0;
 void build_graph_cmd(pnode *head)
 {
-    // if (head!=NULL)
-    //     free(head);
+    deleteGraph_cmd(head);
     int size=0;
     scanf("%d",&size);
     *head=(pnode)malloc(sizeof(struct GRAPH_NODE_));
@@ -32,7 +31,6 @@ void build_graph_cmd(pnode *head)
         temp=temp->next;
     }
     char c=' ';
-    int t=0;
     scanf(" %c",&c);
     while(c=='n')
     {
@@ -209,9 +207,34 @@ void delete_node_cmd(pnode *head)
 
 
 }
+void deleteGraph_cmd(pnode* head)
+{
+    if((*head)== NULL)
+        return;
+    pnode temp=*head;
+    while(temp!=NULL)
+    {
+        pedge curr=temp->edges;
+        while(curr!=NULL)
+        {
+            pedge t=curr->next;
+            free(curr);
+            curr=t;
+        }
+        temp=temp->next;
+    }
+    while((*head)!=NULL)
+    {
+        temp=(*head)->next;
+        free((*head));
+        (*head)=temp;
+    }
+    //free(head);
+}
 int** shortsPath_cmd(pnode head)
 {
     int size=max_ID(head);
+    MATSIZE=size;
     int **MAT=(int **)malloc(size*sizeof(int*));
     for(int i=0;i<size;i++)
         MAT[i]=(int*)malloc(size*sizeof(int));
@@ -252,6 +275,16 @@ int** shortsPath_cmd(pnode head)
     return MAT;
     
 }
+void delMat(int **MAT){
+    // for(int i=0;i<MATSIZE;i++){
+    //     for(int j=0;j<MATSIZE;j++){
+    //         free(MAT[i][j]);
+    //     }
+    // }
+    for(int i=0;i<MATSIZE;i++)
+        free(MAT[i]);
+    free(MAT);
+}
 void TSP_cmd(pnode head)
 {
     int** MAT=shortsPath_cmd(head);
@@ -267,6 +300,8 @@ void TSP_cmd(pnode head)
     }
     if(size==1){
         printf("0\n");
+        delMat(MAT);
+        free(arr);
         return;
     }
     if(size==2){
@@ -275,6 +310,9 @@ void TSP_cmd(pnode head)
         }
         else
             printf("TSP shortest path: -1\n");
+
+        delMat(MAT);
+        free(arr);
         return;
     }
     int min=INF;
@@ -303,6 +341,8 @@ void TSP_cmd(pnode head)
         }
         else
             printf("TSP shortest path: -1 \n");
+        delMat(MAT);
+        free(arr);
         return;
     }
     if(size==4)
@@ -333,6 +373,8 @@ void TSP_cmd(pnode head)
         }
         else
             printf("TSP shortest path: -1 \n");
+        delMat(MAT);
+        free(arr);
         return;
     }
     if(size==5)
@@ -366,6 +408,8 @@ void TSP_cmd(pnode head)
         }
         else
             printf("TSP shortest path: -1 \n");
+        delMat(MAT);
+        free(arr);
         return;
     }
     for(int i=0;i<size;i++)
@@ -407,6 +451,8 @@ void TSP_cmd(pnode head)
         }
         else
             printf("TSP shortest path: -1 \n");
+        delMat(MAT);
+        free(arr);
 
 }
 pnode get_Node(pnode head,int id){
@@ -422,8 +468,9 @@ pnode get_Node(pnode head,int id){
 int max_ID(pnode head)
 {
     int max=0;
-    pnode temp=NULL;
-    temp=head;
+    if(head==NULL)
+        return 1;
+    pnode temp=head;
     while(temp!=NULL)
     {
         if(temp->node_num>max)
@@ -438,9 +485,7 @@ int main()
     int check=0;
     char c=' ';
     check=scanf(" %c",&c);
-    int temp=0;
     int** MAT;
-    int times=0;
     while(check!=EOF)
     {
         
@@ -451,57 +496,31 @@ int main()
         }
         if(c=='B'){
             insert_node_cmd(&head);
-            pnode p=head;
-            while(p!=NULL)
-            {
-                pedge k = p->edges;
-                while(k!=NULL)
-                {
-                    printf("%d--->%d : %d\n",p->node_num,k->endpoint->node_num,k->weight);
-                    k=k->next;
-                }
-                p=p->next;
-            }
-            printf("\n");
-            temp=0;
              
         }
         if(c=='D'){
             
-            delete_node_cmd(&head);
-            pnode p=head;
-            while(p!=NULL)
-            {
-                pedge k = p->edges;
-                while(k!=NULL)
-                {
-                    printf("%d--->%d : %d\n",p->node_num,k->endpoint->node_num,k->weight);
-                    k=k->next;
-                }
-                p=p->next;
-            }
-           
-            temp=0;
+            delete_node_cmd(&head); 
         }
         if(c=='S')
         {
-            if(temp==0){
-                MAT=shortsPath_cmd(head);
-                temp==1;
-            }
+            MAT=shortsPath_cmd(head);
             int p1=0, p2=0; 
             scanf(" %d %d",&p1,&p2);
             printf("dist %d\n",MAT[p1][p2]);
+            delMat(MAT);
+            
         }
         if(c=='T')
         {
-            printf("try\n");
             TSP_cmd(head);
         }
         
        check=scanf(" %c",&c);
        
     }
+    deleteGraph_cmd(&head);
+
 
    
 }
