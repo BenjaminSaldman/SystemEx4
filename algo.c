@@ -313,9 +313,9 @@ void TSP_cmd(pnode head)
     if(size==2){
         if(MAT[arr[0]][arr[1]]<INF || MAT[arr[1]][arr[0]]<INF){
             if(MAT[arr[0]][arr[1]]<INF)
-                printf("TSP shortest path: %d\n",MAT[arr[0]][arr[1]]);
+                printf("TSP shortest path: %d \n",MAT[arr[0]][arr[1]]);
             else
-                printf("TSP shortest path: %d\n",MAT[arr[1]][arr[0]]);
+                printf("TSP shortest path: %d \n",MAT[arr[1]][arr[0]]);
         }
         else
             printf("TSP shortest path: -1\n");
@@ -346,7 +346,7 @@ void TSP_cmd(pnode head)
             }
         }
         if(min<INF){
-        printf("TSP shortest path: %d\n",min);
+        printf("TSP shortest path: %d \n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
@@ -413,7 +413,7 @@ void TSP_cmd(pnode head)
             }
         }
         if(min<INF){
-            printf("TSP shortest path: %d\n",min);
+            printf("TSP shortest path: %d \n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
@@ -456,7 +456,7 @@ void TSP_cmd(pnode head)
         }
 }
       if(min<INF){
-        printf("TSP shortest path: %d\n",min);
+        printf("TSP shortest path: %d \n",min);
         }
         else
             printf("TSP shortest path: -1 \n");
@@ -520,7 +520,7 @@ int main()
             MAT=shortsPath_cmd(head);
             int p1=0, p2=0; 
             scanf(" %d %d",&p1,&p2);
-            printf("Dijsktra shortest path: %d\n",MAT[p1][p2]);
+            printf("Dijsktra shortest path: %d \n",MAT[p1][p2]);
             delMat(MAT);
             
         }
