@@ -241,11 +241,21 @@ int** shortsPath_cmd(pnode head)
 {
     
     int size=max_ID(head);
-    //printf("size:\n");
     MATSIZE=size;
     int **MAT=(int **)malloc(size*sizeof(int*));
-    for(int i=0;i<size;i++)
+    if(MAT==NULL)
+    {
+        printf("Couldn't allocate memory\n");
+        return NULL;
+    }
+    for(int i=0;i<size;i++){
         MAT[i]=(int*)malloc(size*sizeof(int));
+        if(MAT[i]==NULL)
+        {
+            printf("Couldn't allocate memory\n");
+            return NULL;
+        }
+    }
     for(int i=0;i<size;i++)
     {
         for(int j=0;j<size;j++){
@@ -298,6 +308,11 @@ void TSP_cmd(pnode head)
     int size=0;
     scanf("%d",&size);
     int *arr=(int*)malloc(size*sizeof(int));
+    if(arr==NULL)
+    {
+        printf("Could'nt allocate memory\n");
+        return;
+    }
     int s=scanf("%d",&key);
     int index=0;
     while(s==1 && s!=EOF && index<6){
@@ -437,13 +452,7 @@ void TSP_cmd(pnode head)
                             if(i!=j && i!=k && i!=m && i!=n && i!=r && j!=k && j!=m && j!=n && j!=r && k!=m && k!=n && k!=r && m!=n && m!=r && n!=r)
                             {
                                 
-                                switch(size){
-                                    case 3: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]; break;
-                                    case 4: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]; break;
-                                    case 5: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]+MAT[arr[m]][arr[n]]; break;
-                                    case 6: curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]+MAT[arr[m]][arr[n]]+MAT[arr[n]][arr[r]]; break;
-                                }
-                                
+                                curr=MAT[arr[i]][arr[j]]+MAT[arr[j]][arr[k]]+MAT[arr[k]][arr[m]]+MAT[arr[m]][arr[n]]+MAT[arr[n]][arr[r]]; 
                                 if(curr<min)
                                 {
                                     min=curr;
